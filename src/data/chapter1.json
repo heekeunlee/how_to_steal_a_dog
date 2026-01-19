@@ -1,0 +1,99 @@
+{
+  "bookTitle": "How to Steal a Dog",
+  "chapterTitle": "Chapter 1",
+  "sentences": [
+    {
+      "id": 1,
+      "text": "The day I decided to steal a dog was the same day my best friend, Luanne Godfrey, found out I lived in a car.",
+      "translation": "내가 개를 훔치기로 결심한 날은 내 가장 친한 친구인 루앤 고드프리가 내가 차에서 산다는 것을 알게 된 바로 그 날이었다.",
+      "notes": [
+        { "text": "decided to", "meaning": "~하기로 결심하다" },
+        { "text": "steal", "meaning": "훔치다" },
+        { "text": "found out", "meaning": "알아내다, 발견하다" }
+      ]
+    },
+    {
+      "id": 2,
+      "text": "I had told Mama she would find out sooner or later, seeing as how she's so nosy and all.",
+      "translation": "엄마에게 걔가 워낙 꼬치꼬치 캐물어서 조만간 알게 될 거라고 말했었다.",
+      "notes": [
+        { "text": "sooner or later", "meaning": "조만간, 머지않아" },
+        { "text": "seeing as how", "meaning": "~인 것으로 보아" },
+        { "text": "nosy", "meaning": "참견하기 좋아하는, 꼬치꼬치 캐묻는" }
+      ]
+    },
+    {
+      "id": 3,
+      "text": "But Mama had rolled her eyes and said, \"Just get on up there to the bus stop, Georgina, and quit your whining.\"",
+      "translation": "하지만 엄마는 눈을 흘기며 말했다. \"그냥 저기 버스 정류장으로 올라가기나 해, 조지나. 그리고 징징거리지 마.\"",
+      "notes": [
+        { "text": "rolled her eyes", "meaning": "눈을 굴리다 (어이없어하다)" },
+        { "text": "quit", "meaning": "그만두다" },
+        { "text": "whining", "meaning": "징징거리는 소리, 투덜거림" }
+      ]
+    },
+    {
+      "id": 4,
+      "text": "So that's what I did.",
+      "translation": "그래서 난 시키는 대로 했다.",
+      "notes": []
+    },
+    {
+      "id": 5,
+      "text": "I stood up there at the bus stop pretending like I still lived in Apartment 3B.",
+      "translation": "나는 버스 정류장에 서서 마치 내가 여전히 3B 아파트에 사는 것처럼 연기했다.",
+      "notes": [
+        { "text": "pretending like", "meaning": "~인 척하다" }
+      ]
+    },
+    {
+      "id": 6,
+      "text": "I pretended like I didn't have mustard on my shirt from the day before.",
+      "translation": "난 어제 셔츠에 묻은 머스타드 자국이 없는 척했다.",
+      "notes": []
+    },
+    {
+      "id": 7,
+      "text": "I pretended like I hadn't washed my hair in the bathroom of the Texaco gas station that very morning.",
+      "translation": "바로 그날 아침 텍사코 주유소 화장실에서 머리를 감지 않은 척했다.",
+      "notes": [
+        { "text": "that very morning", "meaning": "바로 그날 아침" }
+      ]
+    },
+    {
+      "id": 8,
+      "text": "And I pretended like my daddy hadn't just waltzed off and left us with nothing but three rolls of quarters and a mayonnaise jar full of wadded-up dollar bills.",
+      "translation": "그리고 아빠가 우리에게 25센트 동전 세 롤과 구겨진 1달러 지폐가 가득 든 마요네즈 병만 남겨두고 훌쩍 떠나버리지 않은 척했다.",
+      "notes": [
+        { "text": "waltzed off", "meaning": "경쾌하게 떠나버리다 (무책임하게)" },
+        { "text": "left us with", "meaning": "~을 남겨두고 떠나다" },
+        { "text": "nothing but", "meaning": "오직 ~뿐" },
+        { "text": "wadded-up", "meaning": "구겨진, 뭉쳐진" }
+      ]
+    },
+    {
+      "id": 9,
+      "text": "I guess I'm pretty good at pretending.",
+      "translation": "난 연기하는 것엔 꽤 소질이 있는 것 같다.",
+      "notes": [
+        { "text": "pretty good at", "meaning": "~에 꽤 능숙하다" }
+      ]
+    },
+    {
+      "id": 10,
+      "text": "My brother, Toby, however, is not so good at pretending.",
+      "translation": "하지만 내 동생 토비는 연기를 그렇게 잘하지 못한다.",
+      "notes": [
+        { "text": "however", "meaning": "하지만" }
+      ]
+    },
+    {
+      "id": 11,
+      "text": "When Mama told him to get on up to the bus stop and quit his whining, he cried and carried on like the baby that he is.",
+      "translation": "엄마가 버스 정류장으로 올라가서 징징거리지 말라고 했을 때, 걔는 어린애처럼 울고불고 난리를 쳤다.",
+      "notes": [
+        { "text": "carried on", "meaning": "계속 투덜대다, 난리법석을 떨다" }
+      ]
+    }
+  ]
+}
