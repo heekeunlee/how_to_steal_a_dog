@@ -13,8 +13,10 @@ const useBookStore = create((set, get) => ({
   isLooping: false,
   isQuizMode: false,
   stars: 0,
+  hasStarted: false,
 
   // Actions
+  startReading: () => set({ hasStarted: true }),
   addStar: () => set((state) => ({ stars: state.stars + 1 })),
   toggleQuizMode: () => set((state) => ({ isQuizMode: !state.isQuizMode })),
 

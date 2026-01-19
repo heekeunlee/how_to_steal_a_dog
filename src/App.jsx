@@ -3,7 +3,8 @@ import useBookStore from './store/useBookStore';
 import { useTTS } from './hooks/useTTS';
 import SentenceCard from './components/Player/SentenceCard';
 import ControlBar from './components/Player/ControlBar';
-import { BookOpen, Star, Trophy, BrainCircuit } from 'lucide-react';
+import { BookOpen, Star, BrainCircuit, PlayCircle } from 'lucide-react';
+import coverImage from './assets/cover.jpg';
 
 function App() {
   const {
@@ -17,16 +18,15 @@ function App() {
     stars,
     addStar,
     isQuizMode,
-    toggleQuizMode
+    toggleQuizMode,
+    hasStarted,
+    startReading
   } = useBookStore();
 
   const currentSentence = currentChapter.sentences[currentIndex];
 
   const handleEnd = () => {
-    // Reward logic: Award star if listening fully (and maybe not just looping?)
-    // Simple logic: Add star every time a sentence finishes reading.
     addStar();
-
     if (isLooping) {
       speak(currentSentence.text, playbackSpeed);
     } else {
@@ -42,15 +42,50 @@ function App() {
 
   // Sync TTS
   useEffect(() => {
-    if (isPlaying) {
+    if (hasStarted && isPlaying) {
       speak(currentSentence.text, playbackSpeed);
     } else {
       cancel();
     }
     return () => cancel();
-  }, [currentIndex, isPlaying, playbackSpeed, currentSentence.text]);
+  }, [currentIndex, isPlaying, playbackSpeed, currentSentence.text, hasStarted]);
 
-  // Progress Bar
+
+  // WELCOME SCREEN
+  if (!hasStarted) {
+    return (
+      <div
+        className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-6 cursor-pointer"
+        onClick={startReading}
+      >
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300">
+          {/* Cover Image */}
+          <div className="relative aspect-[2/3] w-full bg-slate-200">
+            <img
+              src={coverImage}
+              alt="Book Cover"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
+              <h1 className="text-white text-3xl font-bold font-serif mb-2 tracking-tight">How to Steal a Dog</h1>
+              <p className="text-white/90 text-sm font-medium">Barbara O'Connor</p>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="p-6 bg-white text-center">
+            <div className="inline-flex items-center gap-2 text-indigo-600 font-bold text-lg animate-pulse">
+              <PlayCircle size={24} />
+              <span>Touch to Start</span>
+            </div>
+            <p className="text-slate-400 text-xs mt-2">Chapter 1 • 11 Sentences</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // MAIN PLAYER SCREEN
   const progressPercent = ((currentIndex + 1) / currentChapter.sentences.length) * 100;
 
   return (
