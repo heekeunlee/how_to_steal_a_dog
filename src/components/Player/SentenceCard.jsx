@@ -1,23 +1,18 @@
-import React, { useState } from 'react';
-import { Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Eye, EyeOff, HelpCircle } from 'lucide-react';
+import useBookStore from '../../store/useBookStore';
 
 const SentenceCard = ({ sentence, fontSize = 'text-2xl' }) => {
     const [activeNote, setActiveNote] = useState(null);
+    const [showTranslation, setShowTranslation] = useState(false);
+    const { isQuizMode } = useBookStore();
 
-    // Helper to highlight parts of the text
-    // This is a simple implementation. For complex overlapping highlights, would need better parsing.
-    // We'll check if any note target is in the text.
+    // Reset local state when sentence changes
+    useEffect(() => {
+        setActiveNote(null);
+        setShowTranslation(false);
+    }, [sentence]);
 
-    // Strategy: Split text by note targets to insert interactive elements.
-    // For simplicity, we will just render the plain text for now, but overlay interactive hints?
-    // OR: We just show the notes below text.
-    // Let's try to highlight. regex replace.
-
-    // Actually, let's keep it simple first: Show text, and show notes below as pills.
-    // IF user requested "Highlight feature", we can refine.
-    // "Interactive Text: 모르는 단어나 숙어(밑줄 표시)를 위로 탭하면 뜻이 팝업됩니다."
-
-    // Let's try to find the note.text inside sentence.text and wrap it.
     const renderText = () => {
         let parts = [{ text: sentence.text, isNote: false }];
 
@@ -48,38 +43,82 @@ const SentenceCard = ({ sentence, fontSize = 'text-2xl' }) => {
 
         return (
             <p className={`font-serif leading-relaxed ${fontSize} text-slate-800`}>
-                {parts.map((part, idx) => (
-                    part.isNote ? (
-                        <span
-                            key={idx}
-                            className="relative inline-block border-b-2 border-amber-400 cursor-pointer group"
-                            onClick={() => setActiveNote(activeNote === part.note ? null : part.note)}
-                        >
-                            {part.text}
-                            {/* Tooltip */}
-                            <span className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-800 text-white text-sm rounded-lg shadow-lg whitespace-nowrap transition-opacity z-10 ${activeNote === part.note ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                                {part.note.meaning}
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-800"></div>
+                {parts.map((part, idx) => {
+                    if (part.isNote) {
+                        const isRevealed = activeNote === part.note;
+                        // In Quiz Mode, text is hidden until revealed.
+                        // In Normal Mode, text is visible, underline indicates interactive.
+
+                        const displayText = isQuizMode && !isRevealed
+                            ? "_".repeat(Math.max(5, part.text.length))
+                            : part.text;
+
+                        const styleClass = isQuizMode && !isRevealed
+                            ? "bg-amber-100 text-amber-800 rounded px-1 border-b-2 border-amber-400 font-bold tracking-widest cursor-pointer hover:bg-amber-200"
+                            : "relative inline-block border-b-2 border-amber-400 cursor-pointer hover:bg-amber-50 rounded px-0.5";
+
+                        return (
+                            <span
+                                key={idx}
+                                className={`${styleClass} transition-colors mx-1`}
+                                onClick={() => setActiveNote(isRevealed ? null : part.note)}
+                            >
+                                {displayText}
+
+                                {/* Tooltip / Answer Reveal */}
+                                <span className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg shadow-xl whitespace-nowrap transition-all z-20 ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                                    <div className="flex flex-col items-center gap-1">
+                                        {isQuizMode && <span className="font-bold text-amber-300 text-lg mb-1">{part.note.text}</span>}
+                                        <span>{part.note.meaning}</span>
+                                    </div>
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-800"></div>
+                                </span>
                             </span>
-                        </span>
-                    ) : (
-                        <span key={idx}>{part.text}</span>
-                    )
-                ))}
+                        );
+                    } else {
+                        return <span key={idx}>{part.text}</span>;
+                    }
+                })}
             </p>
         );
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-xl border border-slate-100 min-h-[300px] flex flex-col justify-center items-center text-center space-y-6">
+        <div className="w-full max-w-2xl mx-auto p-8 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 min-h-[360px] flex flex-col justify-center items-center text-center space-y-8 relative overflow-hidden">
+
+            {/* Quiz Mode Badge */}
+            {isQuizMode && (
+                <div className="absolute top-4 right-4 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                    <HelpCircle size={14} />
+                    Quiz Mode
+                </div>
+            )}
+
             {renderText()}
 
-            {/* Translation (Optional, hidden by default or shown?) - Let's show on toggle or always for now? 
-          User said "짚어주면서 강독". Maybe show translation below in gray.
-      */}
-            <p className="text-slate-500 font-medium text-lg mt-4 border-t border-slate-100 pt-4 w-full">
-                {sentence.translation}
-            </p>
+            {/* Hidden Translation */}
+            <div
+                onClick={() => setShowTranslation(!showTranslation)}
+                className={`w-full p-4 rounded-xl transition-all cursor-pointer group select-none ${showTranslation ? 'bg-slate-50' : 'bg-slate-50 hover:bg-slate-100'}`}
+            >
+                {showTranslation ? (
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <p className="text-slate-600 font-medium text-lg leading-relaxed">
+                            {sentence.translation}
+                        </p>
+                        <div className="flex items-center justify-center gap-2 mt-2 text-xs text-slate-400">
+                            <EyeOff size={14} /> Tap to hide
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-2 py-2">
+                        <div className="h-6 w-3/4 bg-slate-200 rounded-full blur-[2px] opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <p className="text-slate-400 text-sm font-medium flex items-center gap-2">
+                            <Eye size={16} /> Tap to see translation
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
