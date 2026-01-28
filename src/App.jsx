@@ -230,7 +230,7 @@ function App() {
         </div>
 
         {/* Control Bar (Floating) */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none">
+        <div className="absolute bottom-0 left-0 right-0 z-30">
           <ControlBar />
         </div>
       </div>
