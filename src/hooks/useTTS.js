@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-export const useTTS = ({ onEnd }) => {
+export const useTTS = ({ onEnd, onBoundary }) => {
     const [voices, setVoices] = useState([]);
     const [selectedVoice, setSelectedVoice] = useState(null);
     const synth = useRef(window.speechSynthesis);
@@ -34,12 +34,19 @@ export const useTTS = ({ onEnd }) => {
             utterance.voice = selectedVoice;
         }
         utterance.rate = speed;
+
         utterance.onend = () => {
             if (onEnd) onEnd();
         };
 
+        if (onBoundary) {
+            utterance.onboundary = (event) => {
+                onBoundary(event);
+            };
+        }
+
         synth.current.speak(utterance);
-    }, [selectedVoice, onEnd]);
+    }, [selectedVoice, onEnd, onBoundary]);
 
     const cancel = useCallback(() => {
         synth.current.cancel();

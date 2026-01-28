@@ -27,17 +27,22 @@ function App() {
   // 0, 1, 2 ... relative to the page
   const [speakingOffset, setSpeakingOffset] = useState(0);
 
+  // Track character index for current sentence (cursor)
+  const [charIndex, setCharIndex] = useState(-1);
+
   // Get current page sentences
   const visibleSentences = currentChapter.sentences.slice(currentIndex, currentIndex + itemsPerPage);
 
   // Reset speaking offset when page changes
   useEffect(() => {
     setSpeakingOffset(0);
+    setCharIndex(-1);
   }, [currentIndex]);
 
 
   const handleEnd = () => {
     addStar();
+    setCharIndex(-1);
 
     // If we have more sentences on this page to read
     if (speakingOffset < visibleSentences.length - 1) {
@@ -54,7 +59,12 @@ function App() {
     }
   };
 
-  const { speak, cancel } = useTTS({ onEnd: handleEnd });
+  const handleBoundary = (event) => {
+    // event.charIndex is the character index in the string being spoken
+    setCharIndex(event.charIndex);
+  };
+
+  const { speak, cancel } = useTTS({ onEnd: handleEnd, onBoundary: handleBoundary });
 
   // Sync TTS
   useEffect(() => {
@@ -65,8 +75,11 @@ function App() {
       }
     } else {
       cancel();
+      setCharIndex(-1);
     }
-    return () => cancel();
+    return () => {
+      cancel();
+    };
   }, [speakingOffset, isPlaying, playbackSpeed, hasStarted, visibleSentences]);
 
 
@@ -165,12 +178,16 @@ function App() {
             <div className="space-y-6">
               {visibleSentences.map((sentence, idx) => {
                 const isBeingRead = isPlaying && speakingOffset === idx;
+                // Pass current charIndex ONLY to the active sentence
+                const activeCharIndex = isBeingRead ? charIndex : -1;
+
                 return (
                   <SentenceText
                     key={`text-${sentence.id}`}
                     sentence={sentence}
                     fontSize="text-xl"
                     isBeingRead={isBeingRead}
+                    charIndex={activeCharIndex}
                   />
                 )
               })}

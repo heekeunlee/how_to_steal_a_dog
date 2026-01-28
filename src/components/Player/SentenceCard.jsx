@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, HelpCircle } from 'lucide-react';
 import useBookStore from '../../store/useBookStore';
 
-export const SentenceText = ({ sentence, fontSize = 'text-2xl', isBeingRead = false }) => {
+export const SentenceText = ({ sentence, fontSize = 'text-2xl', isBeingRead = false, charIndex = -1 }) => {
     const [activeNote, setActiveNote] = useState(null);
     const { isQuizMode } = useBookStore();
 
@@ -11,44 +11,73 @@ export const SentenceText = ({ sentence, fontSize = 'text-2xl', isBeingRead = fa
         setActiveNote(null);
     }, [sentence]);
 
-    let parts = [{ text: sentence.text, isNote: false }];
-
-    sentence.notes.forEach(note => {
-        const newParts = [];
-        parts.forEach(part => {
-            if (part.isNote) {
-                newParts.push(part);
-                return;
-            }
-
-            const index = part.text.indexOf(note.text);
-            if (index === -1) {
-                newParts.push(part);
-            } else {
-                // Split
-                const before = part.text.substring(0, index);
-                const match = part.text.substring(index, index + note.text.length);
-                const after = part.text.substring(index + note.text.length);
-
-                if (before) newParts.push({ text: before, isNote: false });
-                newParts.push({ text: match, isNote: true, note: note });
-                if (after) newParts.push({ text: after, isNote: false });
-            }
+    // Parse parts and calculate ranges once
+    const partsWithRanges = React.useMemo(() => {
+        let parts = [{ text: sentence.text, isNote: false }];
+        sentence.notes.forEach(note => {
+            const newParts = [];
+            parts.forEach(part => {
+                if (part.isNote) {
+                    newParts.push(part);
+                    return;
+                }
+                const index = part.text.indexOf(note.text);
+                if (index === -1) {
+                    newParts.push(part);
+                } else {
+                    const before = part.text.substring(0, index);
+                    const match = part.text.substring(index, index + note.text.length);
+                    const after = part.text.substring(index + note.text.length);
+                    if (before) newParts.push({ text: before, isNote: false });
+                    newParts.push({ text: match, isNote: true, note: note });
+                    if (after) newParts.push({ text: after, isNote: false });
+                }
+            });
+            parts = newParts;
         });
-        parts = newParts;
-    });
+
+        // Assign character ranges
+        let crawler = 0;
+        return parts.map(part => {
+            const start = crawler;
+            const end = crawler + part.text.length;
+            crawler = end;
+            return { ...part, start, end };
+        });
+    }, [sentence]);
+
+    // Auto-reveal note logic
+    useEffect(() => {
+        if (isBeingRead && charIndex >= 0) {
+            const activePart = partsWithRanges.find(p => charIndex >= p.start && charIndex < p.end);
+            if (activePart && activePart.isNote) {
+                setActiveNote(activePart.note);
+            } else {
+                // Optional: close note when moving off it? Or keep open?
+                // "Show Korean annotations in the middle" -> implies transient or persistent.
+                // Let's hide it if we moved off it, to keep it clean 'cursor' style.
+                setActiveNote(null);
+            }
+        } else {
+            setActiveNote(null);
+        }
+    }, [charIndex, isBeingRead, partsWithRanges]);
+
 
     return (
         <p className={`font-serif leading-[2.2] ${fontSize} text-stone-800 text-left transition-opacity duration-300 ${isBeingRead ? 'opacity-100' : 'opacity-80'}`}>
-            {parts.map((part, idx) => {
+            {partsWithRanges.map((part, idx) => {
+                // Check if this part is currently being spoken
+                const isCurrent = isBeingRead && charIndex >= part.start && charIndex < part.end;
+
                 if (part.isNote) {
                     const isRevealed = activeNote === part.note;
                     const displayText = isQuizMode && !isRevealed ? "________" : part.text;
                     const styleClass = isQuizMode && !isRevealed
                         ? "bg-stone-200 text-transparent rounded-md px-1 select-none animate-pulse cursor-pointer"
                         : `rounded-lg px-2 py-1 mx-0.5 cursor-pointer transition-all duration-200 decoration-clone box-decoration-clone ${isRevealed
-                            ? 'bg-[var(--color-highlight-purple)] text-white shadow-sm ring-2 ring-purple-200'
-                            : 'bg-[var(--color-highlight-orange)]/60 hover:bg-[var(--color-highlight-orange)] text-stone-900'
+                            ? 'bg-[var(--color-highlight-purple)] text-white shadow-md ring-2 ring-purple-200 transform scale-105'
+                            : (isCurrent ? 'bg-amber-200 ring-2 ring-amber-400' : 'bg-[var(--color-highlight-orange)]/60 hover:bg-[var(--color-highlight-orange)] text-stone-900')
                         }`;
 
                     return (
@@ -73,7 +102,13 @@ export const SentenceText = ({ sentence, fontSize = 'text-2xl', isBeingRead = fa
                         </span>
                     );
                 } else {
-                    return <span key={idx}>{part.text}</span>;
+                    // Plain text: Highlight if current?
+                    // "Cursor moves" -> Highlight current word part?
+                    return (
+                        <span key={idx} className={`${isCurrent ? 'bg-yellow-200/50 rounded-sm' : ''}`}>
+                            {part.text}
+                        </span>
+                    );
                 }
             })}
         </p>
