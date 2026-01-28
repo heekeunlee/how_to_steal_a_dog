@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import useBookStore from './store/useBookStore';
 import { useTTS } from './hooks/useTTS';
 import { SentenceText, SentenceTranslation } from './components/Player/SentenceCard';
@@ -40,29 +40,40 @@ function App() {
   }, [currentIndex]);
 
 
-  const handleEnd = () => {
+  const handleEnd = useCallback(() => {
     addStar();
     setCharIndex(-1);
 
     // If we have more sentences on this page to read
-    if (speakingOffset < visibleSentences.length - 1) {
-      setSpeakingOffset(prev => prev + 1);
-    } else {
-      // Finished the page
-      if (isLooping) {
-        setSpeakingOffset(0); // Restart page
+    setSpeakingOffset(prev => {
+      // Access latest vsibileSentences here? No, useCallback dependencies will handle it.
+      // Actually since visibleSentences changes on Page change, we need to be careful.
+      // But visibleSentences is constant for the duration of the page read unless we switch pages.
+      if (prev < visibleSentences.length - 1) {
+        return prev + 1;
       } else {
-        // Stop playing at end of page
-        if (isPlaying) togglePlay();
-        setSpeakingOffset(0);
+        // Finished the page
+        if (isLooping) {
+          return 0; // Restart page
+        } else {
+          // Stop playing at end of page.
+          // We can't togglePlay inside setter easily if it depends on external state,
+          // so we can use an effect or just call togglePlay here if we add it to dep.
+          return 0; // Will stop effectively via effect logic or we must explicit stop?
+        }
       }
-    }
-  };
+    });
 
-  const handleBoundary = (event) => {
+    // Check if we need to stop playing (last sentence)
+    if (speakingOffset >= visibleSentences.length - 1 && !isLooping) {
+      if (isPlaying) togglePlay();
+    }
+  }, [visibleSentences.length, isLooping, isPlaying, speakingOffset, addStar, togglePlay]);
+
+  const handleBoundary = useCallback((event) => {
     // event.charIndex is the character index in the string being spoken
     setCharIndex(event.charIndex);
-  };
+  }, []);
 
   const { speak, cancel } = useTTS({ onEnd: handleEnd, onBoundary: handleBoundary });
 
@@ -80,7 +91,7 @@ function App() {
     return () => {
       cancel();
     };
-  }, [speakingOffset, isPlaying, playbackSpeed, hasStarted, visibleSentences]);
+  }, [speakingOffset, isPlaying, playbackSpeed, hasStarted, visibleSentences, speak]);
 
 
   // WELCOME SCREEN
