@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import useBookStore from './store/useBookStore';
 import { useTTS } from './hooks/useTTS';
 import { SentenceText, SentenceTranslation } from './components/Player/SentenceCard';
@@ -31,7 +31,10 @@ function App() {
   const [charIndex, setCharIndex] = useState(-1);
 
   // Get current page sentences
-  const visibleSentences = currentChapter.sentences.slice(currentIndex, currentIndex + itemsPerPage);
+  const visibleSentences = useMemo(() =>
+    currentChapter.sentences.slice(currentIndex, currentIndex + itemsPerPage),
+    [currentChapter, currentIndex, itemsPerPage]
+  );
 
   // Reset speaking offset when page changes
   useEffect(() => {
@@ -185,40 +188,29 @@ function App() {
               </h2>
             </div>
 
-            {/* English Sentences Group */}
-            <div className="space-y-6">
+            {/* Interleaved Sentences & Translations */}
+            <div className="space-y-8">
               {visibleSentences.map((sentence, idx) => {
                 const isBeingRead = isPlaying && speakingOffset === idx;
-                // Pass current charIndex ONLY to the active sentence
                 const activeCharIndex = isBeingRead ? charIndex : -1;
 
                 return (
-                  <SentenceText
-                    key={`text-${sentence.id}`}
-                    sentence={sentence}
-                    fontSize="text-xl"
-                    isBeingRead={isBeingRead}
-                    charIndex={activeCharIndex}
-                  />
+                  <div key={sentence.id} className="space-y-4">
+                    {/* English Text */}
+                    <SentenceText
+                      sentence={sentence}
+                      fontSize="text-xl"
+                      isBeingRead={isBeingRead}
+                      charIndex={activeCharIndex}
+                    />
+
+                    {/* Korean Translation (Click to View) */}
+                    <SentenceTranslation
+                      sentence={sentence}
+                    />
+                  </div>
                 )
               })}
-            </div>
-
-            {/* Horizontal Line Separator */}
-            <div className="border-t border-stone-200 mt-8 pt-8 relative">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--color-paper)] px-2 text-stone-300 text-xs font-serif italic">
-                Translations
-              </div>
-            </div>
-
-            {/* Korean Translations Group */}
-            <div className="space-y-4">
-              {visibleSentences.map((sentence) => (
-                <SentenceTranslation
-                  key={`trans-${sentence.id}`}
-                  sentence={sentence}
-                />
-              ))}
             </div>
 
             {/* Quiz Toggle */}

@@ -65,7 +65,7 @@ export const SentenceText = ({ sentence, fontSize = 'text-2xl', isBeingRead = fa
 
 
     return (
-        <p className={`font-serif leading-[2.2] ${fontSize} text-stone-800 text-left transition-opacity duration-300 ${isBeingRead ? 'opacity-100' : 'opacity-80'}`}>
+        <p className={`font-serif leading-[1.8] ${fontSize} text-stone-800 text-left transition-opacity duration-300 ${isBeingRead ? 'opacity-100' : 'opacity-80'}`}>
             {partsWithRanges.map((part, idx) => {
                 // Check if this part is currently being spoken
                 const isCurrent = isBeingRead && charIndex >= part.start && charIndex < part.end;
