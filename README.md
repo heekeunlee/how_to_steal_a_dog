@@ -4,9 +4,10 @@ A web application designed to help children learn English through the novel "How
 It features specific sentence-by-sentence reading, interactive vocabulary, and loop playback.
 
 ## Features
-- **Intensive Reading**: Focus on one sentence at a time.
-- **Interactive Vocabulary**: Tap underlined words to see meanings.
-- **Audio Controls**: Play, Loop, and Speed adjustment (TTS).
+- **Page-based Reading**: Comfortable 3-sentence layout per page.
+- **Interactive Playback**: Text highlights as it reads (Karaoke style).
+- **Auto-Note Reveal**: Difficult words pop up with meanings automatically during playback.
+- **Click-to-Translate**: Tap below any sentence to see the Korean translation.
 
 ## Getting Started
 
