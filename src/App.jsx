@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import useBookStore from './store/useBookStore';
 import { useTTS } from './hooks/useTTS';
-import SentenceCard from './components/Player/SentenceCard';
+import { SentenceText, SentenceTranslation } from './components/Player/SentenceCard';
 import ControlBar from './components/Player/ControlBar';
 import { BookOpen, Star, BrainCircuit, PlayCircle } from 'lucide-react';
 import coverImage from './assets/cover.jpg';
@@ -161,17 +161,36 @@ function App() {
               </h2>
             </div>
 
-            {/* Render Visible Sentences */}
-            <div className="space-y-8">
+            {/* English Sentences Group */}
+            <div className="space-y-6">
               {visibleSentences.map((sentence, idx) => {
                 const isBeingRead = isPlaying && speakingOffset === idx;
-
                 return (
-                  <div key={sentence.id} className={`transition-opacity duration-300 ${isBeingRead ? 'opacity-100' : 'opacity-80'}`}>
-                    <SentenceCard sentence={sentence} fontSize="text-xl" />
-                  </div>
+                  <SentenceText
+                    key={`text-${sentence.id}`}
+                    sentence={sentence}
+                    fontSize="text-xl"
+                    isBeingRead={isBeingRead}
+                  />
                 )
               })}
+            </div>
+
+            {/* Horizontal Line Separator */}
+            <div className="border-t border-stone-200 mt-8 pt-8 relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--color-paper)] px-2 text-stone-300 text-xs font-serif italic">
+                Translations
+              </div>
+            </div>
+
+            {/* Korean Translations Group */}
+            <div className="space-y-4">
+              {visibleSentences.map((sentence) => (
+                <SentenceTranslation
+                  key={`trans-${sentence.id}`}
+                  sentence={sentence}
+                />
+              ))}
             </div>
 
             {/* Quiz Toggle */}
