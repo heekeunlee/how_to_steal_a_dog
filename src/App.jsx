@@ -121,7 +121,7 @@ function App() {
     <div className="fixed inset-0 bg-slate-900 flex flex-col font-sans overflow-hidden">
 
       {/* Background / Hero Section */}
-      <div className="relative h-[40vh] w-full shrink-0">
+      <div className="relative h-[25vh] w-full shrink-0">
         <div className="absolute inset-0">
           <img
             src={coverImage}
@@ -146,12 +146,12 @@ function App() {
         </div>
 
         {/* Title Area (Centered in Hero) */}
-        <div className="absolute bottom-16 left-0 right-0 text-center px-6 z-10">
+        <div className="absolute bottom-12 left-0 right-0 text-center px-6 z-10">
           {/* Logo / Title Style */}
-          <h1 className="text-white text-3xl font-serif font-bold tracking-tight mb-2 drop-shadow-md leading-tight">
+          <h1 className="text-white text-2xl font-serif font-bold tracking-tight mb-1 drop-shadow-md leading-tight">
             How to Steal a Dog
           </h1>
-          <p className="text-white/80 text-sm font-medium tracking-wide">Barbara O'Connor</p>
+          <p className="text-white/80 text-xs font-medium tracking-wide">Barbara O'Connor</p>
         </div>
       </div>
 
