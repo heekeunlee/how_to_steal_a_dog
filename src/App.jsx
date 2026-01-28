@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import useBookStore from './store/useBookStore';
 import { useTTS } from './hooks/useTTS';
 import SentenceCard from './components/Player/SentenceCard';
@@ -11,8 +11,8 @@ function App() {
     currentChapter,
     currentIndex,
     isPlaying,
+    itemsPerPage,
     togglePlay,
-    nextSentence,
     playbackSpeed,
     isLooping,
     stars,
@@ -23,17 +23,33 @@ function App() {
     startReading
   } = useBookStore();
 
-  const currentSentence = currentChapter.sentences[currentIndex];
+  // Local state to track which sentence on the current page is being read
+  // 0, 1, 2 ... relative to the page
+  const [speakingOffset, setSpeakingOffset] = useState(0);
+
+  // Get current page sentences
+  const visibleSentences = currentChapter.sentences.slice(currentIndex, currentIndex + itemsPerPage);
+
+  // Reset speaking offset when page changes
+  useEffect(() => {
+    setSpeakingOffset(0);
+  }, [currentIndex]);
+
 
   const handleEnd = () => {
     addStar();
-    if (isLooping) {
-      speak(currentSentence.text, playbackSpeed);
+
+    // If we have more sentences on this page to read
+    if (speakingOffset < visibleSentences.length - 1) {
+      setSpeakingOffset(prev => prev + 1);
     } else {
-      if (currentIndex < currentChapter.sentences.length - 1) {
-        nextSentence();
+      // Finished the page
+      if (isLooping) {
+        setSpeakingOffset(0); // Restart page
       } else {
+        // Stop playing at end of page
         if (isPlaying) togglePlay();
+        setSpeakingOffset(0);
       }
     }
   };
@@ -43,12 +59,15 @@ function App() {
   // Sync TTS
   useEffect(() => {
     if (hasStarted && isPlaying) {
-      speak(currentSentence.text, playbackSpeed);
+      const sentenceToRead = visibleSentences[speakingOffset];
+      if (sentenceToRead) {
+        speak(sentenceToRead.text, playbackSpeed);
+      }
     } else {
       cancel();
     }
     return () => cancel();
-  }, [currentIndex, isPlaying, playbackSpeed, currentSentence.text, hasStarted]);
+  }, [speakingOffset, isPlaying, playbackSpeed, hasStarted, visibleSentences]);
 
 
   // WELCOME SCREEN
@@ -78,21 +97,18 @@ function App() {
               <PlayCircle size={24} />
               <span>Touch to Start</span>
             </div>
-            <p className="text-slate-400 text-xs mt-2">Chapter 1 • 11 Sentences</p>
+            <p className="text-slate-400 text-xs mt-2">Chapter 1 • {currentChapter.sentences.length} Sentences</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // MAIN PLAYER SCREEN
-  const progressPercent = ((currentIndex + 1) / currentChapter.sentences.length) * 100;
-
   return (
     <div className="fixed inset-0 bg-slate-900 flex flex-col font-sans overflow-hidden">
 
       {/* Background / Hero Section */}
-      <div className="relative h-[45vh] w-full shrink-0">
+      <div className="relative h-[40vh] w-full shrink-0">
         <div className="absolute inset-0">
           <img
             src={coverImage}
@@ -119,10 +135,10 @@ function App() {
         {/* Title Area (Centered in Hero) */}
         <div className="absolute bottom-16 left-0 right-0 text-center px-6 z-10">
           {/* Logo / Title Style */}
-          <h1 className="text-white text-4xl font-serif font-bold tracking-tight mb-1 drop-shadow-md">
-            DUNE
+          <h1 className="text-white text-3xl font-serif font-bold tracking-tight mb-2 drop-shadow-md leading-tight">
+            How to Steal a Dog
           </h1>
-          <p className="text-white/80 text-sm font-medium tracking-wide">Frank Herbert</p>
+          <p className="text-white/80 text-sm font-medium tracking-wide">Barbara O'Connor</p>
         </div>
       </div>
 
@@ -135,19 +151,31 @@ function App() {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-32 no-scrollbar scroll-smooth">
-          <div className="max-w-md mx-auto">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-40 no-scrollbar scroll-smooth">
+          <div className="max-w-md mx-auto space-y-10">
+
             {/* Chapter Header */}
-            <div className="text-center mb-8">
-              <h2 className="text-stone-800 font-bold text-lg mb-1">
-                하루에 단 10분만 투자하여 좋아하는<br />책으로 영어를 정복하세요
+            <div className="text-center mb-4">
+              <h2 className="text-stone-400 text-xs font-bold uppercase tracking-widest">
+                {currentChapter.chapterTitle}
               </h2>
             </div>
 
-            <SentenceCard sentence={currentSentence} />
+            {/* Render Visible Sentences */}
+            <div className="space-y-8">
+              {visibleSentences.map((sentence, idx) => {
+                const isBeingRead = isPlaying && speakingOffset === idx;
+
+                return (
+                  <div key={sentence.id} className={`transition-opacity duration-300 ${isBeingRead ? 'opacity-100' : 'opacity-80'}`}>
+                    <SentenceCard sentence={sentence} fontSize="text-xl" />
+                  </div>
+                )
+              })}
+            </div>
 
             {/* Quiz Toggle */}
-            <div className="mt-8 flex justify-center">
+            <div className="flex justify-center pt-8">
               <button
                 onClick={toggleQuizMode}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${isQuizMode

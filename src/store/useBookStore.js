@@ -7,7 +7,8 @@ const useBookStore = create((set, get) => ({
   currentChapter: chapter1Data,
 
   // Playback State
-  currentIndex: 0,
+  currentIndex: 0, // Actually this acts as "page start index" now
+  itemsPerPage: 3,
   isPlaying: false,
   playbackSpeed: 1.0,
   isLooping: false,
@@ -20,24 +21,30 @@ const useBookStore = create((set, get) => ({
   addStar: () => set((state) => ({ stars: state.stars + 1 })),
   toggleQuizMode: () => set((state) => ({ isQuizMode: !state.isQuizMode })),
 
+  // Set index safely ensuring it aligns with page start? 
+  // For simplicity, we just set it. The view will slice from here.
   setSentenceIndex: (index) => {
     const { currentChapter } = get();
     if (index >= 0 && index < currentChapter.sentences.length) {
-      set({ currentIndex: index, isPlaying: true }); // Auto-play on switch?
+      set({ currentIndex: index, isPlaying: true });
     }
   },
 
-  nextSentence: () => {
-    const { currentIndex, currentChapter } = get();
-    if (currentIndex < currentChapter.sentences.length - 1) {
-      set({ currentIndex: currentIndex + 1 });
+  nextPage: () => {
+    const { currentIndex, currentChapter, itemsPerPage } = get();
+    // Only proceed if there are more sentences after the current page
+    if (currentIndex + itemsPerPage < currentChapter.sentences.length) {
+      set({ currentIndex: currentIndex + itemsPerPage, isPlaying: false }); // Stop playing when turning page
     }
   },
 
-  prevSentence: () => {
-    const { currentIndex } = get();
-    if (currentIndex > 0) {
-      set({ currentIndex: currentIndex - 1 });
+  prevPage: () => {
+    const { currentIndex, itemsPerPage } = get();
+    if (currentIndex - itemsPerPage >= 0) {
+      set({ currentIndex: currentIndex - itemsPerPage, isPlaying: false });
+    } else if (currentIndex > 0) {
+      // If less than one page remaining at start, go to 0
+      set({ currentIndex: 0, isPlaying: false });
     }
   },
 

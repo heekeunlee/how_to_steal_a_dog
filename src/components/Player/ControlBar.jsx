@@ -4,7 +4,7 @@ import useBookStore from '../../store/useBookStore';
 
 const ControlBar = () => {
     const {
-        isPlaying, togglePlay, nextSentence, prevSentence,
+        isPlaying, togglePlay, nextPage, prevPage,
         playbackSpeed, setPlaybackSpeed, isLooping, toggleLoop
     } = useBookStore();
 
@@ -25,7 +25,7 @@ const ControlBar = () => {
 
             {/* Main Transport */}
             <div className="flex items-center gap-6">
-                <button onClick={prevSentence} className="text-stone-400 hover:text-stone-800 transition-colors">
+                <button onClick={prevPage} className="text-stone-400 hover:text-stone-800 transition-colors">
                     <SkipBack size={24} fill="currentColor" />
                 </button>
 
@@ -36,7 +36,7 @@ const ControlBar = () => {
                     {isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
                 </button>
 
-                <button onClick={nextSentence} className="text-stone-400 hover:text-stone-800 transition-colors">
+                <button onClick={nextPage} className="text-stone-400 hover:text-stone-800 transition-colors">
                     <SkipForward size={24} fill="currentColor" />
                 </button>
             </div>
