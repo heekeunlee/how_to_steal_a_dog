@@ -89,67 +89,84 @@ function App() {
   const progressPercent = ((currentIndex + 1) / currentChapter.sentences.length) * 100;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col pb-40 font-sans">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-30 transition-shadow">
-        <div className="max-w-2xl mx-auto px-4 py-3">
-          {/* Top Row */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 text-indigo-800">
-              <div className="bg-indigo-100 p-2 rounded-lg">
-                <BookOpen size={20} className="text-indigo-600" />
-              </div>
-              <h1 className="font-bold text-base tracking-tight leading-none">
-                How to Steal a Dog
-                <span className="block text-xs text-slate-400 font-normal mt-1">Chapter 1</span>
-              </h1>
-            </div>
+    <div className="fixed inset-0 bg-slate-900 flex flex-col font-sans overflow-hidden">
 
-            {/* Star Counter */}
-            <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-100 px-3 py-1.5 rounded-full shadow-sm">
-              <Star size={16} className="text-amber-500 fill-amber-500" />
-              <span className="text-amber-700 font-bold text-sm tabular-nums">{stars}</span>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-            <div
-              className="bg-indigo-500 h-full rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progressPercent}%` }}
-            ></div>
-          </div>
+      {/* Background / Hero Section */}
+      <div className="relative h-[45vh] w-full shrink-0">
+        <div className="absolute inset-0">
+          <img
+            src={coverImage}
+            alt="Cover"
+            className="w-full h-full object-cover opacity-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60"></div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center px-4 py-6 w-full max-w-2xl mx-auto">
-
-        {/* Mode Toggles */}
-        <div className="w-full flex justify-end mb-4">
-          <button
-            onClick={toggleQuizMode}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${isQuizMode
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-600 ring-offset-2'
-                : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
-              }`}
-          >
-            <BrainCircuit size={16} />
-            {isQuizMode ? 'Quiz Active' : 'Quiz Mode'}
+        {/* Top Navbar Area (Transparent) */}
+        <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10 safe-top">
+          {/* Back Button (Mock) */}
+          <button className="text-white/90 p-2 hover:bg-white/10 rounded-full">
+            <BookOpen size={24} />
           </button>
+
+          {/* Star/Points Counter */}
+          <div className="flex items-center gap-1.5 bg-black/30 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
+            <Star size={16} className="text-amber-400 fill-amber-400" />
+            <span className="text-white font-bold text-sm tabular-nums">{stars}</span>
+          </div>
         </div>
 
-        <SentenceCard sentence={currentSentence} />
+        {/* Title Area (Centered in Hero) */}
+        <div className="absolute bottom-16 left-0 right-0 text-center px-6 z-10">
+          {/* Logo / Title Style */}
+          <h1 className="text-white text-4xl font-serif font-bold tracking-tight mb-1 drop-shadow-md">
+            DUNE
+          </h1>
+          <p className="text-white/80 text-sm font-medium tracking-wide">Frank Herbert</p>
+        </div>
+      </div>
 
-        <div className="mt-8 text-center" style={{ opacity: isQuizMode ? 1 : 0, transition: 'opacity 0.3s' }}>
-          <p className="text-indigo-800 text-sm font-medium bg-indigo-50 inline-block px-4 py-2 rounded-lg">
-            💡 Tip: Click the blanks to reveal the answer!
-          </p>
+      {/* Bottom Sheet / Content Area */}
+      <div className="flex-1 bg-[var(--color-paper)] relative -mt-8 rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.3)] z-20 flex flex-col overflow-hidden isolate">
+
+        {/* Sheet Handle / Decor */}
+        <div className="w-full h-8 flex justify-center items-center shrink-0">
+          <div className="w-12 h-1 bg-stone-300 rounded-full opacity-50"></div>
         </div>
 
-      </main>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-32 no-scrollbar scroll-smooth">
+          <div className="max-w-md mx-auto">
+            {/* Chapter Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-stone-800 font-bold text-lg mb-1">
+                하루에 단 10분만 투자하여 좋아하는<br />책으로 영어를 정복하세요
+              </h2>
+            </div>
 
-      <ControlBar />
+            <SentenceCard sentence={currentSentence} />
+
+            {/* Quiz Toggle */}
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={toggleQuizMode}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${isQuizMode
+                  ? 'bg-amber-100 text-amber-800 ring-1 ring-amber-300'
+                  : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                  }`}
+              >
+                <BrainCircuit size={16} />
+                {isQuizMode ? 'Quiz Active' : 'Quiz Mode'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Control Bar (Floating) */}
+        <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none">
+          <ControlBar />
+        </div>
+      </div>
     </div>
   );
 }

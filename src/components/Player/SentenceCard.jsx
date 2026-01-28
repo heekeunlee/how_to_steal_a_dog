@@ -42,37 +42,47 @@ const SentenceCard = ({ sentence, fontSize = 'text-2xl' }) => {
         });
 
         return (
-            <p className={`font-serif leading-relaxed ${fontSize} text-slate-800`}>
+            <p className={`font-serif leading-[2.2] ${fontSize} text-stone-800 text-left`}>
                 {parts.map((part, idx) => {
                     if (part.isNote) {
                         const isRevealed = activeNote === part.note;
                         // In Quiz Mode, text is hidden until revealed.
-                        // In Normal Mode, text is visible, underline indicates interactive.
+                        // In Normal Mode, text is visible, "Highlighter" style indicates interactive.
 
                         const displayText = isQuizMode && !isRevealed
-                            ? "_".repeat(Math.max(5, part.text.length))
+                            ? "________" // Placeholder
                             : part.text;
 
                         const styleClass = isQuizMode && !isRevealed
-                            ? "bg-amber-100 text-amber-800 rounded px-1 border-b-2 border-amber-400 font-bold tracking-widest cursor-pointer hover:bg-amber-200"
-                            : "relative inline-block border-b-2 border-amber-400 cursor-pointer hover:bg-amber-50 rounded px-0.5";
+                            ? "bg-stone-200 text-transparent rounded-md px-1 select-none animate-pulse cursor-pointer"
+                            : `rounded-lg px-2 py-1 mx-0.5 cursor-pointer transition-all duration-200 decoration-clone box-decoration-clone ${isRevealed
+                                ? 'bg-[var(--color-highlight-purple)] text-white shadow-sm ring-2 ring-purple-200'
+                                : 'bg-[var(--color-highlight-orange)]/60 hover:bg-[var(--color-highlight-orange)] text-stone-900'
+                            }`;
 
                         return (
                             <span
                                 key={idx}
-                                className={`${styleClass} transition-colors mx-1`}
-                                onClick={() => setActiveNote(isRevealed ? null : part.note)}
+                                className={`relative inline-block ${styleClass}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveNote(isRevealed ? null : part.note);
+                                }}
                             >
                                 {displayText}
 
-                                {/* Tooltip / Answer Reveal */}
-                                <span className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg shadow-xl whitespace-nowrap transition-all z-20 ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                                    <div className="flex flex-col items-center gap-1">
-                                        {isQuizMode && <span className="font-bold text-amber-300 text-lg mb-1">{part.note.text}</span>}
-                                        <span>{part.note.meaning}</span>
+                                {/* Pop-up Note (Tooltip) */}
+                                {isRevealed && (
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 animate-in zoom-in-50 duration-200 origin-bottom">
+                                        <div className="bg-purple-600 text-white text-sm md:text-base px-4 py-3 rounded-2xl shadow-xl whitespace-nowrap min-w-[120px] text-center">
+                                            {isQuizMode && <div className="font-bold text-purple-200 text-xs mb-1 uppercase tracking-wide">Answer</div>}
+                                            <div className="font-medium leading-tight">{part.note.meaning}</div>
+
+                                            {/* Arrow */}
+                                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-purple-600"></div>
+                                        </div>
                                     </div>
-                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-800"></div>
-                                </span>
+                                )}
                             </span>
                         );
                     } else {
@@ -84,36 +94,32 @@ const SentenceCard = ({ sentence, fontSize = 'text-2xl' }) => {
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto p-8 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 min-h-[360px] flex flex-col justify-center items-center text-center space-y-8 relative overflow-hidden">
-
-            {/* Quiz Mode Badge */}
-            {isQuizMode && (
-                <div className="absolute top-4 right-4 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                    <HelpCircle size={14} />
-                    Quiz Mode
-                </div>
-            )}
+        <div className="w-full relative">
+            {/* Quiz Mode Badge moved to App level or kept minimal here if needed, but removing big card wrapper */}
 
             {renderText()}
 
             {/* Hidden Translation */}
             <div
                 onClick={() => setShowTranslation(!showTranslation)}
-                className={`w-full p-4 rounded-xl transition-all cursor-pointer group select-none ${showTranslation ? 'bg-slate-50' : 'bg-slate-50 hover:bg-slate-100'}`}
+                className={`w-full mt-12 p-6 rounded-2xl transition-all cursor-pointer select-none border border-stone-100 ${showTranslation ? 'bg-white shadow-sm' : 'bg-transparent hover:bg-black/5'}`}
             >
                 {showTranslation ? (
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <p className="text-slate-600 font-medium text-lg leading-relaxed">
+                        <p className="text-stone-600 font-sans font-medium text-lg leading-relaxed text-center">
                             {sentence.translation}
                         </p>
-                        <div className="flex items-center justify-center gap-2 mt-2 text-xs text-slate-400">
+                        <div className="flex items-center justify-center gap-2 mt-4 text-xs text-stone-400 font-sans uppercase tracking-wider">
                             <EyeOff size={14} /> Tap to hide
                         </div>
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center gap-2 py-2">
-                        <div className="h-6 w-3/4 bg-slate-200 rounded-full blur-[2px] opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <p className="text-slate-400 text-sm font-medium flex items-center gap-2">
+                    <div className="flex flex-col items-center gap-3 py-2">
+                        {/* Fake "blurred" lines to hint at content */}
+                        <div className="h-4 w-3/4 bg-stone-200 rounded-full blur-[2px] opacity-40"></div>
+                        <div className="h-4 w-1/2 bg-stone-200 rounded-full blur-[2px] opacity-40"></div>
+
+                        <p className="text-stone-400 text-sm font-sans font-medium flex items-center gap-2 mt-2">
                             <Eye size={16} /> Tap to see translation
                         </p>
                     </div>
